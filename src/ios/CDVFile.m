@@ -710,16 +710,19 @@ NSString* const kCDVFilesystemURLPrefix = @"cdvfile";
 {
     // arguments
     CDVFilesystemURL* localURI = [self fileSystemURLforArg:command.arguments[0]];
-    CDVPluginResult* result = nil;
 
-    if ([localURI.fullPath isEqualToString:@""]) {
-        // error if try to remove top level (documents or tmp) dir
-        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsInt:NO_MODIFICATION_ALLOWED_ERR];
-    } else {
-        NSObject<CDVFileSystem> *fs = [self filesystemForURL:localURI];
-        result = [fs removeFileAtURL:localURI];
-    }
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    [self.commandDelegate runInBackground:^{
+        CDVPluginResult* result = nil;
+
+        if ([localURI.fullPath isEqualToString:@""]) {
+            // error if try to remove top level (documents or tmp) dir
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsInt:NO_MODIFICATION_ALLOWED_ERR];
+        } else {
+            NSObject<CDVFileSystem> *fs = [self filesystemForURL:localURI];
+            result = [fs removeFileAtURL:localURI];
+        }
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    }];
 }
 
 /* recursively removes the directory
@@ -734,16 +737,19 @@ NSString* const kCDVFilesystemURLPrefix = @"cdvfile";
 {
     // arguments
     CDVFilesystemURL* localURI = [self fileSystemURLforArg:command.arguments[0]];
-    CDVPluginResult* result = nil;
 
-    if ([localURI.fullPath isEqualToString:@""]) {
-        // error if try to remove top level (documents or tmp) dir
-        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsInt:NO_MODIFICATION_ALLOWED_ERR];
-    } else {
-        NSObject<CDVFileSystem> *fs = [self filesystemForURL:localURI];
-        result = [fs recursiveRemoveFileAtURL:localURI];
-    }
-    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    [self.commandDelegate runInBackground:^{
+        CDVPluginResult* result = nil;
+        
+        if ([localURI.fullPath isEqualToString:@""]) {
+            // error if try to remove top level (documents or tmp) dir
+            result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsInt:NO_MODIFICATION_ALLOWED_ERR];
+        } else {
+            NSObject<CDVFileSystem> *fs = [self filesystemForURL:localURI];
+            result = [fs recursiveRemoveFileAtURL:localURI];
+        }
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+    }];
 }
 
 - (void)copyTo:(CDVInvokedUrlCommand*)command
